@@ -22,3 +22,6 @@ An initialized thread object represents an active thread of execution; Such a�
 A default-constructed (non-initialized) thread object is not joinable, and its thread id is common for all non-joinable threads.
 
 A joinable thread becomes not joinable if moved from, or if either join or detach are called on them.
+
+
+Total: the std::thread library in c++ is well combined with other standard libraries, has a user-friendly interface and is easy to use.
