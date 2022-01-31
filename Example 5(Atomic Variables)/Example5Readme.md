@@ -1,0 +1,2 @@
+Atomic variables
+Atomic variables are often used to perform simple operations without using mutexes. For example, you need to increment a counter from multiple threads. Instead of wrapping int in std::mutex, it is more efficient to use std::atomic_int. C++ also offers the types std::atomic_char, std::atomic_bool and many others. Lock-free algorithms and data structures are also implemented on atomic variables. It is worth noting that they are very difficult to develop and debug, and not all systems work faster than similar algorithms and data structures with locks.
