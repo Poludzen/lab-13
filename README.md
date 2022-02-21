@@ -312,3 +312,9 @@ turtle.exitonclick()
 
 ## Total:
 We can use parallel programming for a lot of things, with big amount of libraries in different languages
+
+## Sources:
+https://en.cppreference.com/w/cpp/thread/thread
+https://en.cppreference.com/w/cpp/thread
+https://realpython.com/beginners-guide-python-turtle/#getting-to-know-the-python-turtle-library
+https://docs.python.org/3/library/threading.html
