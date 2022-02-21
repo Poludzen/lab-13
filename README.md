@@ -26,7 +26,7 @@ A joinable thread becomes not joinable if moved from, or if either join 
 
 ### Now let's see that is easy to work with this library
 ### Example 1: 
-'''c++
+```c++
 // thread example
 #include <iostream> // std::cout
 #include <thread> // std::thread 
@@ -41,7 +41,7 @@ int main() {
     std::cout << "foo and bar completed.\n"; 
     return 0;
  }
-'''
+```
 
 In this example we have 2 functions running in parallel. just showing easy example of work.
 
