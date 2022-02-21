@@ -26,6 +26,8 @@ A joinable thread becomes not joinable if moved from, or if either join 
 
 #### Now let's see that is easy to work with this library
 #### Example 1: 
+In this example we have 2 functions running in parallel. just showing easy example of work.
+
 ```c++
 // thread example
 #include <iostream> // std::cout
@@ -43,7 +45,6 @@ int main() {
  }
 ```
 
-In this example we have 2 functions running in parallel. just showing easy example of work.
 
 ##### Output of this example is:
 
@@ -51,6 +52,8 @@ In this example we have 2 functions running in parallel. just showing easy examp
 main, foo and bar now execute concurrently... foo and bar completed
 ```
 #### Example 2:
+It launches three thread from the main function . Each thread is called using one of the callable objects specified above, they was mentioned before in readme
+
 ```c++
 // CPP program to demonstrate multithreading
 // using three different callables.
@@ -104,8 +107,6 @@ int main(){
     return 0;
 }
 ```
-It launches three thread from the main function . Each thread is called using one of the callable objects specified above, they was mentioned before in readme
-
 ##### Output of this example is:
 ```
 Threads 1 and 2 and 3 operating independently 
@@ -119,6 +120,136 @@ Thread using function pointer as callable
 Thread using function object as callable 
 Thread using function object as callable
 ```
+#### Example 3:
+What about handling exceptions between threads? To pass exceptions between threads, you need to catch them in a thread function and store them somewhere in order to access them later. In this example, I had to synchronize access to the g_exceptions vector to be sure that only one thread at a time could insert a new element. To do this, I used a mutex and a lock on a mutex. Mutex - the basic element of synchronization
+```c++
+#include<thread>
+#include<mutex>
+#include<chrono>
+#include<iostream>
 
+std::mutex g_mutex; 
+std::vector<std::exception_ptr> g_exceptions;
+ void throw_function() {
+    throw std::exception("something wrong happened"); 
+}
+void threadFunction() {
+    try {
+        throw_function();
+    } 
+    catch (...){ 
+       std::lock_guard<std::mutex> lock(g_mutex); 
+       g_exceptions.push_back(std::current_exception()); 
+    } 
+} 
+int main() { 
+    g_exceptions.clear();
+    std::thread thr(threadFunction);      
+    thr.join();
+    for(auto &e: g_exceptions) { 
+        try { 
+            if(e != nullptr)           
+              std::rethrow_exception(e); 
+        } 
+        catch (const std::exception &e) { 
+            std::cout << e.what() << std::endl; 
+        } 
+    } 
+    return 0; 
+}
+```
+#### Example 4:
+Thread Local Storage : Sometimes you need to create a variable, like a global one, but which only one thread sees. Other threads also see the variable, but for them it has its own local value. To do this, they came up with Thread Local Storage, or TLS. Among other things, TLS can be used to significantly speed up the generation of pseudorandom numbers
+```c++
+#include <iostream>
+#include <mutex>
+#include <thread>
+#include <vector>
+
+std::mutex io_mtx;
+thread_local int counter = 0;
+static const int MAX_COUNTER_VAL = 10;
+
+void thread_proc(int tnum) {
+    for(;;) {
+        counter++;
+        if(counter == MAX_COUNTER_VAL)
+            break;
+        {
+            std::lock_guard<std::mutex> lock(io_mtx);
+            std::cout << "Thread " << tnum << ": counter = " <<
+                      counter << std::endl;
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+int main() {
+    std::vector<std::thread> threads;
+    for(int i = 0; i < 10; i++) {
+        std::thread thr(thread_proc, i);
+        threads.emplace_back(std::move(thr));
+    }
+
+    for(auto& thr : threads) {
+        thr.join();
+    }
+
+    std::cout << "Done!" << std::endl;
+    return 0;
+}
+```
+Output of this code is so big, you can try it on your own!
+
+#### Example 5
+Atomic variables: Atomic variables are often used to perform simple operations without using mutexes. For example, you need to increment a counter from multiple threads. Instead of wrapping int in std::mutex, it is more efficient to use std::atomic_int. C++ also offers the types std::atomic_char, std::atomic_bool and many others. Lock-free algorithms and data structures are also implemented on atomic variables. It is worth noting that they are very difficult to develop and debug, and not all systems work faster than similar algorithms and data structures with locks. Note the use of the hardware_concurrency procedure. It returns an estimate of the number of trades that can be executed in parallel in the current system. For example, on a machine with a quad-core processor that supports hyper threading, the procedure returns the number 8. Also, the procedure may return zero if the evaluation failed or the procedure is simply not implemented.
+```с++
+#include <atomic>
+#include <iostream>
+#include <mutex>
+#include <thread>
+#include <vector>
+
+static std::atomic_int atomic_counter(0);
+static const int MAX_COUNTER_VAL = 100;
+
+std::mutex io_mtx;
+
+void thread_proc(int tnum) {
+    for(;;) {
+        {
+            int ctr_val = ++atomic_counter;
+            if(ctr_val >= MAX_COUNTER_VAL)
+                break;
+
+            {
+                std::lock_guard<std::mutex> lock(io_mtx);
+                std::cout << "Thread " << tnum << ": counter = " <<
+                             ctr_val << std::endl;
+            }
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
+}
+
+int main() {
+    std::vector<std::thread> threads;
+
+    int nthreads = std::thread::hardware_concurrency();
+    if(nthreads == 0) nthreads = 2;
+
+    for(int i = 0; i < nthreads; i++) {
+        std::thread thr(thread_proc, i);
+        threads.emplace_back(std::move(thr));
+    }
+
+    for(auto& thr : threads) {
+        thr.join();
+    }
+
+    std::cout << "Done!" << std::endl;
+    return 0;
+}
+```
 
 ### Total: the std::thread library in c++ is well combined with other standard libraries, has a user-friendly interface and is easy to use.
