@@ -253,3 +253,62 @@ int main() {
 ```
 
 ### Total: the std::thread library in c++ is well combined with other standard libraries, has a user-friendly interface and is easy to use.
+
+## Example 2: Let's have some fun! Python parallel programming and drawing
+Python library ```threading ``` - it is a simple library which allows to develop multithreading programs in python. 
+We will try to work with this libray with ```turtle ``` - it is a library for drawing figures in python
+
+### Our aim - draw a number 8 like a two rings in parallel
+Code of example:
+```python
+import queue
+import threading
+import turtle
+
+
+def tes1():
+    for _ in range(360):
+        graphics.put(turtle1.forward)
+        graphics.put(turtle1.left)
+
+
+def tes2():
+    for _ in range(360):
+        graphics.put(turtle2.forward)
+        graphics.put(turtle2.right)
+
+
+def process_queue():
+    while not graphics.empty():
+        (graphics.get())(1)
+
+    if threading.active_count() > 1:
+        turtle.ontimer(process_queue, 100)
+
+
+graphics = queue.Queue(1)  # size = number of hardware threads you have - 1
+
+turtle1 = turtle.Turtle('turtle')
+turtle1.speed('fastest')
+thread1 = threading.Thread(target=tes1)
+thread1.daemon = True  # thread dies when main thread (only non-daemon thread) exits.
+thread1.start()
+
+turtle2 = turtle.Turtle('turtle')
+turtle2.speed('fastest')
+thread2 = threading.Thread(target=tes2)
+thread2.daemon = True  # thread dies when main thread (only non-daemon thread) exits.
+thread2.start()
+
+process_queue()
+
+turtle.exitonclick()
+```
+
+##### Screenshots of work(at start,middle and end):
+![alt text](https://github.com/Poludzen/lab-13/blob/main/Example-Python/turtle-ex1.jpg?raw=True "Start")
+![alt text](https://github.com/Poludzen/lab-13/blob/main/Example-Python/turtle-ex2.jpg?raw=True "Middle")
+![alt text](https://github.com/Poludzen/lab-13/blob/main/Example-Python/turtle-ex3.jpg?raw=True "End")
+
+## Total:
+We can use parallel programming for a lot of things, with big amount of libraries in different languages
