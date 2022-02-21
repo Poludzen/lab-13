@@ -24,5 +24,30 @@ A default-constructed (non-initialized) thread object is not joinable, and i
 
 A joinable thread becomes not joinable if moved from, or if either join or detach are called on them.
 
+### Now let's see that is easy to work with this library
+### Example 1: 
+'''c++
+// thread example
+#include <iostream> // std::cout
+#include <thread> // std::thread 
+void foo() { // do stuff... } 
+void bar(int x) { // do stuff... }
+int main() {
+    std::thread first (foo); // spawn new thread that calls foo() 
+    std::thread second (bar,0); // spawn new thread that calls bar(0)
+    std::cout << "main, foo and bar now execute concurrently...\n"; // synchronize threads: 
+    first.join(); // pauses until first finishes 
+    second.join(); // pauses until second finishes 
+    std::cout << "foo and bar completed.\n"; 
+    return 0;
+ }
+'''
+
+In this example we have 2 functions running in parallel. just showing easy example of work.
+
+Output of this example is:
+
+main, foo and bar now execute concurrently... foo and bar completed
+
 
 ### Total: the std::thread library in c++ is well combined with other standard libraries, has a user-friendly interface and is easy to use.
